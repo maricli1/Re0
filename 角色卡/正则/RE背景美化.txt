@@ -1,0 +1,241 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Noto+Serif+JP:wght@400;700&family=Shippori+Mincho&display=swap" rel="stylesheet">
+
+<div class="rezero-container" style="
+  width: 90%;
+  max-width: 1200px;
+  min-height: 200px;
+  margin: 20px auto;
+  position: relative;
+  overflow: hidden;
+  padding: 25px;
+  background: linear-gradient(165deg, #100f14, #211e2b);
+  border: 12px solid;
+  border-image: linear-gradient(135deg, #5c4a7d, #bb86fc) 1;
+  border-radius: 8px;
+  box-shadow:
+    0 0 30px rgba(187, 134, 252, 0.25),
+    inset 0 0 20px rgba(0,0,0,0.4);
+  font-family: 'Noto Serif JP', serif;
+  color: #dcd1ff;
+">
+  <!-- 背景网格和光效 -->
+  <div class="bg-grid" style="
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+      repeating-linear-gradient(45deg, transparent, transparent 15px, rgba(138, 107, 190, 0.06) 15px, rgba(138, 107, 190, 0.06) 16px),
+      repeating-linear-gradient(-45deg, transparent, transparent 15px, rgba(138, 107, 190, 0.06) 15px, rgba(138, 107, 190, 0.06) 16px);
+    pointer-events: none;
+    opacity: 0.5;
+  "></div>
+
+  <!-- 异世界风格装饰 -->
+  <div class="magic-glyph" style="
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200px;
+    height: 200px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(28, 23, 40, 0) 0%, rgba(187, 134, 252, 0.12) 60%, rgba(187, 134, 252, 0.2) 65%, transparent 70%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+  "></div>
+  
+  <!-- 角装饰 -->
+  <div class="corner-decoration top-left"></div>
+  <div class="corner-decoration top-right"></div>
+  <div class="corner-decoration bottom-left"></div>
+  <div class="corner-decoration bottom-right"></div>
+  
+  <!-- 减少粒子数量 -->
+  <div class="mote" style="left: 10%; top: 20%;"></div>
+  <div class="mote" style="left: 85%; top: 70%;"></div>
+
+  <!-- 内容框 -->
+  <div class="rezero-content-box" style="
+    position: relative;
+    background: rgba(20, 18, 28, 0.9);
+    border: 1px solid rgba(187, 134, 252, 0.3);
+    border-radius: 6px;
+    padding: 20px;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80px;
+    z-index: 1;
+  ">
+
+    <!-- 标题 -->
+    <span style="
+      font-family: 'Shippori Mincho', serif;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      color: white;
+      text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #bb86fc, 0 0 25px #bb86fc;
+      line-height: 1.2;
+      text-align: center;
+      white-space: normal;
+      word-break: break-word;
+    ">Re:从零开始的异世界生活</span>
+
+    <!-- 内容框内部装饰 -->
+    <div class="corner-glow bottom-left-inner"></div>
+    <div class="corner-glow top-right-inner"></div>
+    <div class="sparkle" style="top: 15px; right: 20px; background: radial-gradient(circle, white 20%, #f48fb1 60%, transparent 80%);"></div>
+    <div class="sparkle" style="bottom: 25px; left: 18px; background: radial-gradient(circle, white 20%, #90caf9 60%, transparent 80%);"></div>
+  </div>
+
+  <style>
+    /* 优化动画性能 */
+    .rezero-container {
+      transform: translateZ(0);
+      will-change: transform;
+    }
+    
+    .corner-decoration {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .corner-decoration::before, .corner-decoration::after {
+      content: '';
+      position: absolute;
+      border-style: solid;
+      border-color: #7d6b9c;
+    }
+    .top-left { top: 18px; left: 18px; }
+    .top-left::before { top: 0; left: 0; width: 15px; height: 15px; border-width: 2px 0 0 2px; }
+    .top-left::after { top: 5px; left: 5px; width: 8px; height: 8px; border-width: 1px 0 0 1px; }
+
+    .top-right { top: 18px; right: 18px; }
+    .top-right::before { top: 0; right: 0; width: 15px; height: 15px; border-width: 2px 2px 0 0; }
+    .top-right::after { top: 5px; right: 5px; width: 8px; height: 8px; border-width: 1px 1px 0 0; }
+
+    .bottom-left { bottom: 18px; left: 18px; }
+    .bottom-left::before { bottom: 0; left: 0; width: 15px; height: 15px; border-width: 0 0 2px 2px; }
+    .bottom-left::after { bottom: 5px; left: 5px; width: 8px; height: 8px; border-width: 0 0 1px 1px; }
+
+    .bottom-right { bottom: 18px; right: 18px; }
+    .bottom-right::before { bottom: 0; right: 0; width: 15px; height: 15px; border-width: 0 2px 2px 0; }
+    .bottom-right::after { bottom: 5px; right: 5px; width: 8px; height: 8px; border-width: 0 1px 1px 0; }
+
+    /* 优化粒子动画 */
+    .mote {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background-color: rgba(187, 134, 252, 0.5);
+      border-radius: 50%;
+      box-shadow: 0 0 3px 1px rgba(187, 134, 252, 0.5);
+      pointer-events: none;
+      z-index: 0;
+      animation: etherealFloat 8s infinite ease-in-out;
+    }
+    
+    .mote:nth-child(1) { animation-delay: 0s; }
+    .mote:nth-child(2) { animation-delay: -4s; }
+
+    @keyframes etherealFloat {
+      0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+      25% { opacity: 0.6; }
+      75% { opacity: 0.6; }
+      50% { transform: translateY(-20px) translateX(10px); }
+    }
+
+    /* 简化光效动画 */
+    .magic-glyph {
+      animation: magicPulse 10s infinite ease-in-out;
+    }
+
+    @keyframes magicPulse {
+      0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(0.98); }
+      50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.02); }
+    }
+
+    /* 简化闪烁动画 */
+    .sparkle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      opacity: 0.7;
+      z-index: 0;
+      animation: rezeroSparkle 4s infinite ease-in-out;
+      box-shadow: 0 0 3px currentColor;
+    }
+    
+    .sparkle:nth-child(4) { animation-delay: 1s; }
+
+    @keyframes rezeroSparkle {
+      0%, 100% { transform: scale(0.9); opacity: 0.7; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+
+    /* 简化容器光效 */
+    .rezero-container {
+      animation: rezeroGlowNight 6s infinite alternate ease-in-out;
+    }
+
+    @keyframes rezeroGlowNight {
+      from {
+        box-shadow: 0 0 25px rgba(187, 134, 252, 0.2), inset 0 0 20px rgba(0,0,0,0.4);
+        border-image: linear-gradient(135deg, #5c4a7d, #bb86fc) 1;
+      }
+      to {
+        box-shadow: 0 0 35px rgba(187, 134, 252, 0.3), inset 0 0 25px rgba(0,0,0,0.5);
+        border-image: linear-gradient(135deg, #bb86fc, #5c4a7d) 1;
+      }
+    }
+
+    /* 角光效 */
+    .corner-glow {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      opacity: 0.9;
+      z-index: -1;
+      pointer-events: none;
+    }
+    
+    .bottom-left-inner {
+      bottom: -2px;
+      left: -2px;
+      background: radial-gradient(circle at bottom left, rgba(187, 134, 252, 0.15) 10%, transparent 60%);
+      border-radius: 0 0 0 8px;
+    }
+    
+    .top-right-inner {
+      top: -2px;
+      right: -2px;
+      background: radial-gradient(circle at top right, rgba(187, 134, 252, 0.15) 10%, transparent 60%);
+      border-radius: 0 8px 0 0;
+    }
+
+    /* 移动端适配 */
+    @media (max-width: 600px) {
+      .rezero-container {
+        padding: 15px;
+        border-width: 8px;
+      }
+      .rezero-content-box {
+        padding: 15px;
+      }
+      .corner-decoration {
+        transform: scale(0.8);
+      }
+      .top-left { top: 12px; left: 12px; }
+      .top-right { top: 12px; right: 12px; }
+      .bottom-left { bottom: 12px; left: 12px; }
+      .bottom-right { bottom: 12px; right: 12px; }
+    }
+  </style>

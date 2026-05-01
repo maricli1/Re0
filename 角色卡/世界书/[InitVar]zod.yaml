@@ -1,0 +1,57 @@
+主角:
+  姓名: <user>
+  种族: 人类
+  生命值:
+    当前值: 100
+    最大值: 100
+  魔法值:
+    当前值: 50
+    最大值: 50
+  体力值:
+    当前值: 100
+    最大值: 100
+  护甲值:
+    当前值: 0
+    最大值: 0
+  属性列表:
+    力量: 10
+    敏捷: 10
+    智力: 12
+    耐力: 10
+    精神: 11
+    魅力: 13
+  物品列表:
+    手机:
+      name: 智能手机
+      description: 一部功能齐全的现代智能手机，似乎没有什么特别之处。
+      quantity: 1
+    钱包:
+      name: 普通钱包
+      description: 里面有少量现金和一张学生证。
+      quantity: 1
+  装备栏:
+    武器:
+      name: ""
+      description: ""
+      attackPower: null
+    上身:
+      name: 白衬衫与休闲外套
+      description: 整洁干净的日常穿着。
+      defenseValue: 1
+    下身:
+      name: 牛仔裤
+      description: 耐磨的普通牛仔裤。
+      defenseValue: 1
+    饰品:
+      name: ""
+      description: ""
+  技能列表:
+    言语精通:
+      name: 言语精通
+      description: 你擅长与人沟通，更容易获得他人的好感与信任。
+      manaCost: 0
+      staminaCost: 0
+  死亡回溯计数: 0
+关系列表: {}
+敌人列表: {}
+任务列表: {}
