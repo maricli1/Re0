@@ -40,15 +40,19 @@
 
       // ---- send result back to opener ----
       function sendToOpener(data) {
-        log('Sending to opener: ' + JSON.stringify(data));
+        log('Sending to opener: ' + JSON.stringify(Object.keys(data)));
+        // 兜底方案：写 localStorage，opener 可以轮询读取
         try {
-          // 只发送给直接打开此弹窗的窗口（不对顶层发，避免触发宿主重载）
+          if (data.user) {
+            localStorage.setItem('discord_workshop_pending', JSON.stringify(data.user));
+            log('localStorage backup written');
+          }
+        } catch(e) { log('localStorage write failed: ' + e.message); }
+        // 主方案：postMessage
+        try {
           if (window.opener && window.opener !== window && !window.opener.closed) {
             window.opener.postMessage({ type: 'discord_auth_result', ...data }, '*');
-          }
-          // 备选：如果 opener 不可用，尝试关闭窗口（用户看到页面提示）
-          if (!window.opener || window.opener.closed) {
-            log('WARNING: opener not available');
+            log('postMessage sent to opener');
           }
         } catch(e) { log('postMessage failed: ' + e.message); }
       }
