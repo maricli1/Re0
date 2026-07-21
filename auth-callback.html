@@ -29,7 +29,7 @@
       var status = document.getElementById('status');
       var detail = document.getElementById('detail');
 
-      // Parse 后端配置（与 api.ts 保持一致）
+      // Parse 后端配置
       var PARSE_BASE = 'https://parseapi.back4app.com';
       var PARSE_APP_ID = 'tHvxkLC75XEiizyeMnzHzUnqgQdc9xX88wLs2NJY';
       var PARSE_JS_KEY = 'N2qWOhR9Wj2gwbnXyWSPBaChak9bmSZ4R7LR6fPL';
@@ -38,21 +38,10 @@
         status.textContent = (ok ? '✅ ' : '❌ ') + text;
         status.className = ok ? 'status ok' : 'status err';
         if (ok) detail.textContent = '窗口正在关闭...';
-        setTimeout(function() { window.close(); }, ok ? 400 : 2000);
+        setTimeout(function() { window.close(); }, ok ? 600 : 3000);
       }
 
-      // 途径 1: postMessage 给 opener（Chrome/Firefox 毫秒级快速通道）
-      function sendViaPostMessage(type, payload) {
-        try {
-          if (window.opener && !window.opener.closed) {
-            window.opener.postMessage({ type: type, payload: payload }, '*');
-            return true;
-          }
-        } catch(e) {}
-        return false;
-      }
-
-      // 途径 2: 通过 Parse 后端中继（Safari/移动端后备通道）
+      // 通过 Parse 中继用户数据给 workshop 页面
       function sendViaParse(sessionId, userData) {
         return fetch(PARSE_BASE + '/functions/completeAuthSession', {
           method: 'POST',
@@ -70,19 +59,18 @@
         var p = new URLSearchParams(hash);
         var token = p.get('access_token'), tt = p.get('token_type');
         var err = p.get('error'), errDesc = p.get('error_description');
-        var state = p.get('state'); // sessionId，由 discordAuth.ts 传入
+        var state = p.get('state'); // sessionId
 
         if (err) {
-          sendViaPostMessage('SAVE_ERROR', err + (errDesc ? ': ' + errDesc : ''));
           finish(false, err + (errDesc ? ': ' + errDesc : ''));
           return;
         }
         if (!token) {
-          sendViaPostMessage('SAVE_ERROR', '未收到授权令牌');
           finish(false, '未收到授权令牌');
           return;
         }
 
+        // 获取 Discord 用户信息
         fetch('https://discord.com/api/v10/users/@me', {
           headers: { Authorization: (tt || 'Bearer') + ' ' + token }
         }).then(function(r) {
@@ -91,36 +79,23 @@
             return b;
           });
         }).then(function(user) {
-          // 同时尝试两种途径发送数据
-          var sentViaOpener = sendViaPostMessage('SAVE_DATA', user);
-
-          if (state) {
-            // 有 sessionId：同时走 Parse 后备通道（并行，不阻塞）
-            sendViaParse(state, user).then(function() {
-              if (!sentViaOpener) {
-                // opener 不可用时，Parse 通道是唯一途径
-                detail.textContent = '通过备用通道完成登录';
-              }
-            }).catch(function(e) {
-              console.warn('[auth-callback] Parse 中继失败:', e);
-              if (!sentViaOpener) {
-                finish(false, '所有登录通道均失败，请重试');
-                return;
-              }
-            });
-          } else if (!sentViaOpener) {
-            // 无 sessionId 且 opener 不可用 = 无法完成登录
-            finish(false, '浏览器不支持弹窗通信，请尝试使用 Chrome');
+          if (!state) {
+            finish(false, '缺少会话标识，无法完成登录');
             return;
           }
 
-          finish(true, user.username);
+          // 通过 Parse 中继用户数据给 workshop 页面
+          detail.textContent = '正在通过服务端中继...';
+          sendViaParse(state, user).then(function() {
+            finish(true, user.username);
+          }).catch(function(e) {
+            console.warn('[auth-callback] Parse 中继失败:', e);
+            finish(false, '服务端通信失败，请重试');
+          });
         }).catch(function(e) {
-          sendViaPostMessage('SAVE_ERROR', e.message);
           finish(false, e.message);
         });
       } catch(e) {
-        sendViaPostMessage('SAVE_ERROR', e.message);
         finish(false, e.message);
       }
     })();
