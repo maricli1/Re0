@@ -36,10 +36,11 @@
         setTimeout(function() { window.close(); }, ok ? 400 : 2000);
       }
 
-      function send(data) {
+      // 发送给父窗口（原网页 iframe）
+      function send(type, payload) {
         try {
           if (window.opener && !window.opener.closed) {
-            window.opener.postMessage({ type: 'discord_login', ...data }, '*');
+            window.opener.postMessage({ type: type, payload: payload }, '*');
           }
         } catch(e) {}
       }
@@ -51,12 +52,12 @@
         var err = p.get('error'), errDesc = p.get('error_description');
 
         if (err) {
-          send({ error: err + (errDesc ? ': ' + errDesc : '') });
+          send('SAVE_ERROR', err + (errDesc ? ': ' + errDesc : ''));
           finish(false, err + (errDesc ? ': ' + errDesc : ''));
           return;
         }
         if (!token) {
-          send({ error: 'no_token' });
+          send('SAVE_ERROR', '未收到授权令牌');
           finish(false, '未收到授权令牌');
           return;
         }
@@ -68,15 +69,15 @@
             if (!r.ok) throw new Error(b.message || b.error || 'HTTP ' + r.status);
             return b;
           });
-        }).then(function(u) {
-          send({ user: u });
-          finish(true, u.username);
+        }).then(function(user) {
+          send('SAVE_DATA', user);
+          finish(true, user.username);
         }).catch(function(e) {
-          send({ error: e.message });
+          send('SAVE_ERROR', e.message);
           finish(false, e.message);
         });
       } catch(e) {
-        send({ error: e.message });
+        send('SAVE_ERROR', e.message);
         finish(false, e.message);
       }
     })();
