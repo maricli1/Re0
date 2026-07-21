@@ -29,6 +29,11 @@
       var status = document.getElementById('status');
       var detail = document.getElementById('detail');
 
+      // Parse 后端配置（与 api.ts 保持一致）
+      var PARSE_BASE = 'https://parseapi.back4app.com';
+      var PARSE_APP_ID = 'tHvxkLC75XEiizyeMnzHzUnqgQdc9xX88wLs2NJY';
+      var PARSE_JS_KEY = 'N2qWOhR9Wj2gwbnXyWSPBaChak9bmSZ4R7LR6fPL';
+
       function finish(ok, text) {
         status.textContent = (ok ? '✅ ' : '❌ ') + text;
         status.className = ok ? 'status ok' : 'status err';
@@ -36,13 +41,28 @@
         setTimeout(function() { window.close(); }, ok ? 400 : 2000);
       }
 
-      // 发送给父窗口（原网页 iframe）
-      function send(type, payload) {
+      // 途径 1: postMessage 给 opener（Chrome/Firefox 毫秒级快速通道）
+      function sendViaPostMessage(type, payload) {
         try {
           if (window.opener && !window.opener.closed) {
             window.opener.postMessage({ type: type, payload: payload }, '*');
+            return true;
           }
         } catch(e) {}
+        return false;
+      }
+
+      // 途径 2: 通过 Parse 后端中继（Safari/移动端后备通道）
+      function sendViaParse(sessionId, userData) {
+        return fetch(PARSE_BASE + '/functions/completeAuthSession', {
+          method: 'POST',
+          headers: {
+            'X-Parse-Application-Id': PARSE_APP_ID,
+            'X-Parse-JavaScript-Key': PARSE_JS_KEY,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ sessionId: sessionId, userData: userData }),
+        }).then(function(r) { return r.json(); });
       }
 
       try {
@@ -50,14 +70,15 @@
         var p = new URLSearchParams(hash);
         var token = p.get('access_token'), tt = p.get('token_type');
         var err = p.get('error'), errDesc = p.get('error_description');
+        var state = p.get('state'); // sessionId，由 discordAuth.ts 传入
 
         if (err) {
-          send('SAVE_ERROR', err + (errDesc ? ': ' + errDesc : ''));
+          sendViaPostMessage('SAVE_ERROR', err + (errDesc ? ': ' + errDesc : ''));
           finish(false, err + (errDesc ? ': ' + errDesc : ''));
           return;
         }
         if (!token) {
-          send('SAVE_ERROR', '未收到授权令牌');
+          sendViaPostMessage('SAVE_ERROR', '未收到授权令牌');
           finish(false, '未收到授权令牌');
           return;
         }
@@ -70,14 +91,36 @@
             return b;
           });
         }).then(function(user) {
-          send('SAVE_DATA', user);
+          // 同时尝试两种途径发送数据
+          var sentViaOpener = sendViaPostMessage('SAVE_DATA', user);
+
+          if (state) {
+            // 有 sessionId：同时走 Parse 后备通道（并行，不阻塞）
+            sendViaParse(state, user).then(function() {
+              if (!sentViaOpener) {
+                // opener 不可用时，Parse 通道是唯一途径
+                detail.textContent = '通过备用通道完成登录';
+              }
+            }).catch(function(e) {
+              console.warn('[auth-callback] Parse 中继失败:', e);
+              if (!sentViaOpener) {
+                finish(false, '所有登录通道均失败，请重试');
+                return;
+              }
+            });
+          } else if (!sentViaOpener) {
+            // 无 sessionId 且 opener 不可用 = 无法完成登录
+            finish(false, '浏览器不支持弹窗通信，请尝试使用 Chrome');
+            return;
+          }
+
           finish(true, user.username);
         }).catch(function(e) {
-          send('SAVE_ERROR', e.message);
+          sendViaPostMessage('SAVE_ERROR', e.message);
           finish(false, e.message);
         });
       } catch(e) {
-        send('SAVE_ERROR', e.message);
+        sendViaPostMessage('SAVE_ERROR', e.message);
         finish(false, e.message);
       }
     })();
